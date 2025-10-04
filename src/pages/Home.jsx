@@ -1,94 +1,36 @@
-import { useEffect, useState } from "react";
 import Search from "../components/common/Search";
 import Spinner from "../components/common/Spinner";
-import MovieCard from "../components/movie/MovieCard";
-import { useDebounce } from "react-use";
-import { updateSearchCount, getTrendingMovies } from "../services/appwrite";
-
-const API_BASE_URL = "https://api.themoviedb.org/3";
-const API_KEY = import.meta.env.VITE_TMDB_API_KEY;
-
-const API_OPTIONS = {
-  method: "GET",
-  headers: {
-    accept: "application/json",
-    Authorization: `Bearer ${API_KEY}`,
-  },
-};
+import MovieCard from "../features/movie/components/MovieCard";
+import { useMovies } from "../features/movie/hooks/useMovies";
+import { useEffect, useState } from "react";
+import { getTrendingMovies } from "../services/appwrite";
+import {
+  Select,
+  SelectTrigger,
+  SelectContent,
+  SelectItem,
+  SelectValue,
+} from "@/components/ui/select";
 
 const Home = () => {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [errorMessage, setErrorMessage] = useState("");
-  const [movies, setMovies] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [debounceOnSearchTerm, setDebounceOnSearchTerm] = useState("");
+  const {
+    searchTerm,
+    setSearchTerm,
+    movies,
+    isLoading,
+    error,
+    sortBy,
+    setSortBy,
+  } = useMovies();
   const [trendingMovies, setTrendingMovies] = useState([]);
 
-  useDebounce(
-    () => {
-      setDebounceOnSearchTerm(searchTerm);
-    },
-    500,
-    [searchTerm]
-  );
-
-  const fetchMovies = async (query) => {
-    setIsLoading(true);
-    setErrorMessage("");
-    try {
-      const endpoint = query
-        ? `${API_BASE_URL}/search/movie?query=${encodeURIComponent(query)}`
-        : `${API_BASE_URL}/discover/movie?sort_by=popularity.desc`;
-
-      const response = await fetch(endpoint, API_OPTIONS);
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch movies");
-      }
-
-      const data = await response.json();
-
-      if (data.Response === "False") {
-        setErrorMessage(
-          data.Error || "An error occurred while fetching movies."
-        );
-        setMovies([]);
-        return;
-      }
-
-      setMovies(data.results || []);
-
-      if (query && data.results.length > 0) {
-        await updateSearchCount(query, data.results[0]);
-      }
-    } catch (error) {
-      console.error(`Error fetching movies: ${error}`);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const fetchTrendingMovies = async () => {
-    try {
-      const movies = await getTrendingMovies();
-      setTrendingMovies(movies);
-    } catch (error) {
-      console.error("Error fetching trending movies:", error);
-    }
-  }
-
   useEffect(() => {
-    fetchMovies(debounceOnSearchTerm);
-  }, [debounceOnSearchTerm]);
-
-  useEffect(() => {
-    fetchTrendingMovies();
+    getTrendingMovies().then(setTrendingMovies).catch(console.error);
   }, []);
 
   return (
     <main>
       <div className="pattern" />
-
       <div className="wrapper">
         <header>
           <img src="./hero.png" alt="Hero Banner" />
@@ -106,7 +48,10 @@ const Home = () => {
               {trendingMovies.map((movie, index) => (
                 <li key={movie.$id}>
                   <p>{index + 1}</p>
-                  <img src={movie.poster_url ? movie.poster_url : "./no-movie.png"} alt={movie.title} />
+                  <img
+                    src={movie.poster_url || "./no-movie.png"}
+                    alt={movie.title}
+                  />
                 </li>
               ))}
             </ul>
@@ -114,12 +59,29 @@ const Home = () => {
         )}
 
         <section className="all-movies">
-          <h2>All Movies</h2>
+          <div className="flex items-center justify-between mb-4">
+            <h2>All Movies</h2>
+            <Select value={sortBy} onValueChange={setSortBy}>
+              <SelectTrigger className="w-[180px] bg-gray-800 text-gray-300">
+                <SelectValue placeholder="Sort by" />
+              </SelectTrigger>
+              <SelectContent className="bg-gray-800 text-gray-300">
+                <SelectItem value="popularity.desc">Popularity ↓</SelectItem>
+                <SelectItem value="popularity.asc">Popularity ↑</SelectItem>
+                <SelectItem value="release_date.desc">
+                  Release Date ↓
+                </SelectItem>
+                <SelectItem value="release_date.asc">Release Date ↑</SelectItem>
+                <SelectItem value="vote_average.desc">Rating ↓</SelectItem>
+                <SelectItem value="vote_average.asc">Rating ↑</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
 
           {isLoading ? (
             <Spinner />
-          ) : errorMessage ? (
-            <p className="text-red-500">{errorMessage}</p>
+          ) : error ? (
+            <p className="text-red-500">{error}</p>
           ) : (
             <ul>
               {movies.map((movie) => (

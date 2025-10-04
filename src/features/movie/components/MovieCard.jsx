@@ -1,17 +1,18 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
-const MovieCard = ({
-  movie: {
+const MovieCard = ({ movie }) => {
+  const {
+    id,
     title,
     poster_path,
     vote_average,
     release_date,
-    overview,
     original_language,
-  },
-}) => {
+  } = movie;
+
   return (
-    <div className="movie-card">
+    <Link to={`/movie/${id}`} className="movie-card">
       <img
         src={
           poster_path
@@ -26,7 +27,7 @@ const MovieCard = ({
 
         <div className="content">
           <div className="rating">
-            <img src="./star.svg" alt="star icon" />
+            <span className="text-amber-300 text-xl">★</span>
             <p>{vote_average ? vote_average.toFixed(1) : "N/A"}</p>
           </div>
 
@@ -39,7 +40,7 @@ const MovieCard = ({
           </p>
         </div>
       </div>
-    </div>
+    </Link>
   );
 };
 
