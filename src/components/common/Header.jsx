@@ -1,9 +1,12 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { useAuth } from "@/features/auth/AuthContext";
 import { Menu, X } from "lucide-react";
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const { user, logout } = useAuth();
+  const [showMenu, setShowMenu] = useState(false);
 
   const navLinks = [
     { to: "/", label: "Movies" },
@@ -11,7 +14,7 @@ const Header = () => {
     { to: "/room", label: "Room" },
     { to: "/share", label: "Share List" },
     { to: "/battle", label: "Voting Battle" },
-    { to: "/playlist", label: "Playlist" },
+    { to: "/wishlist", label: "Wishlist" },
   ];
 
   return (
@@ -35,13 +38,55 @@ const Header = () => {
       </nav>
 
       {/* Right section */}
-      <div className="flex items-center space-x-4">
-        <button className="text-gray-400 hover:text-white">🔔</button>
-        <img
-          src="https://via.placeholder.com/40"
-          className="w-10 h-10 rounded-full border border-gray-600"
-          alt="profile"
-        />
+      <div className="flex items-center space-x-4 relative">
+        {!user ? (
+          <>
+            <Link
+              to="/login"
+              className="px-3 py-1 bg-indigo-500 text-white rounded hover:bg-indigo-600"
+            >
+              Login
+            </Link>
+            <Link
+              to="/register"
+              className="px-3 py-1 bg-indigo-500 text-white rounded hover:bg-indigo-600"
+            >
+              Register
+            </Link>
+          </>
+        ) : (
+          <>
+            <p
+              className="px-2 py-1 bg-indigo-500 rounded-2xl cursor-pointer "
+              onClick={() => setShowMenu(!showMenu)}
+            >
+              {user}
+            </p>
+
+            {/* Dropdown menu */}
+            {showMenu && (
+              <div className="absolute top-12 right-0 bg-gray-800 border border-gray-700 rounded shadow-lg w-40 py-2 z-50">
+                <Link
+                  to="/profile"
+                  className="block px-4 py-2 text-gray-200 hover:bg-gray-700"
+                  onClick={() => setShowMenu(false)}
+                >
+                  Profile
+                </Link>
+                <button
+                  onClick={() => {
+                    logout();
+                    setShowMenu(false);
+                  }}
+                  className="block w-full text-left px-4 py-2 text-red-400 hover:bg-gray-700 cursor-pointer"
+                >
+                  Logout
+                </button>
+              </div>
+            )}
+          </>
+        )}
+
         {/* Mobile toggle button */}
         <button
           className="md:hidden text-gray-300 hover:text-white"
@@ -54,7 +99,9 @@ const Header = () => {
       {/* Mobile Menu with animation */}
       <div
         className={`absolute top-full left-0 w-full bg-gray-800 shadow-md md:hidden z-50 transform transition-all duration-300 ease-in-out ${
-          isOpen ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4 pointer-events-none"
+          isOpen
+            ? "opacity-100 translate-y-0"
+            : "opacity-0 -translate-y-4 pointer-events-none"
         }`}
       >
         <nav className="flex flex-col space-y-2 p-4">
