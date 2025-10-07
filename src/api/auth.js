@@ -3,14 +3,15 @@ import { apiClient } from "@/services/backend"; // axios instance
 // 🔹 Login: BE trả về { accessToken, refreshToken, username }
 export async function login(credentials) {
   const res = await apiClient.post("auth/login", credentials);
-  const { accessToken, refreshToken, username } = res.data;
+  const { accessToken, refreshToken, username, userId } = res.data;
 
   // lưu token + username vào localStorage
   localStorage.setItem("accessToken", accessToken);
   localStorage.setItem("refreshToken", refreshToken);
   localStorage.setItem("username", username);
+  localStorage.setItem("userId", userId);
 
-  return { accessToken, refreshToken, username };
+  return { accessToken, refreshToken, username, userId };
 }
 
 // 🔹 Register
@@ -36,6 +37,7 @@ export async function logout() {
   localStorage.removeItem("accessToken");
   localStorage.removeItem("refreshToken");
   localStorage.removeItem("username");
+  localStorage.removeItem("userId");
 }
 
 // 🔹 Get current username từ BE (dùng accessToken), fallback từ localStorage

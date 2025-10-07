@@ -11,8 +11,6 @@ const Header = () => {
   const navLinks = [
     { to: "/", label: "Movies" },
     { to: "/timeline", label: "Timeline Release" },
-    { to: "/room", label: "Room" },
-    { to: "/share", label: "Share List" },
     { to: "/battle", label: "Voting Battle" },
     { to: "/wishlist", label: "Wishlist" },
   ];

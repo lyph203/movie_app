@@ -12,6 +12,7 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import WishlistPage from "./pages/WishlistPage";
 import PublicWishlistPage from "./pages/PublicWishlistPage";
+import VotingPage from "./pages/VotingPage";
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
           <Route path="movie/:id" element={<MovieDetailPage />} />
           <Route path="timeline" element={<ReleasePage />} />
           <Route path="/auth" element={<AuthPage />} />
+          <Route path="/battle" element={<VotingPage />} />
           <Route path="/share/:token" element={<PublicWishlistPage />} />
           <Route
             path="/profile"
