@@ -1,14 +1,21 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { useWishlist } from "@/features/wishlist/WishlistContext";
-import { AiFillHeart, AiOutlineHeart   } from "react-icons/ai";
+import { AiFillHeart, AiOutlineHeart } from "react-icons/ai";
 
 const MovieCard = ({ movie }) => {
-  const { id, title, poster_path, vote_average, release_date, original_language } = movie;
+  const {
+    id,
+    title,
+    poster_path,
+    vote_average,
+    release_date,
+    original_language,
+  } = movie;
   const { wishlist, add, remove } = useWishlist();
 
-  const inWishlist = wishlist.some((w) => w.movieId === id);
-  const wishlistItem = wishlist.find((w) => w.movieId === id);
+  const inWishlist = wishlist.some((w) => Number(w.movieId) === Number(id));
+  const wishlistItem = wishlist.find((w) => Number(w.movieId) === Number(id));
 
   const handleClick = (e) => {
     e.preventDefault(); // chặn redirect khi click icon
@@ -23,7 +30,11 @@ const MovieCard = ({ movie }) => {
     <div className="relative">
       <Link to={`/movie/${id}`} className="movie-card block">
         <img
-          src={poster_path ? `https://image.tmdb.org/t/p/w500${poster_path}` : "./no-movie.png"}
+          src={
+            poster_path
+              ? `https://image.tmdb.org/t/p/w500${poster_path}`
+              : "./no-movie.png"
+          }
           alt={title}
         />
         <div className="mt-4">
@@ -36,7 +47,9 @@ const MovieCard = ({ movie }) => {
             <span>・</span>
             <p className="lang">{original_language}</p>
             <span>・</span>
-            <p className="year">{release_date ? release_date.split("-")[0] : "N/A"}</p>
+            <p className="year">
+              {release_date ? release_date.split("-")[0] : "N/A"}
+            </p>
           </div>
         </div>
       </Link>
@@ -46,7 +59,7 @@ const MovieCard = ({ movie }) => {
         onClick={handleClick}
         className="absolute top-2 right-2 text-2xl cursor-pointer"
       >
-        {inWishlist ? <AiFillHeart /> : <AiOutlineHeart  /> }
+        {inWishlist ? <AiFillHeart /> : <AiOutlineHeart />}
       </button>
     </div>
   );

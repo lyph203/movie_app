@@ -2,6 +2,7 @@ import { createContext, useContext, useState, useEffect } from "react";
 import { getWishlist, addToWishlist, removeFromWishlist } from "@/api/wishlist";
 import { toast } from "react-toastify";
 import { useAuth } from "@/features/auth/AuthContext";
+import { enrichWithMovieDetails } from "./MovieUtils";
 
 const WishlistContext = createContext();
 
@@ -11,18 +12,34 @@ export const WishlistProvider = ({ children }) => {
 
   useEffect(() => {
     if (user) {
-      getWishlist()
-        .then(setWishlist)
-        .catch((err) =>
-          console.error("Wishlist API error:", err.response || err)
-        );
+      (async () => {
+        try {
+          const list = await getWishlist(); // [{id, movieId}]
+          const detailed = await enrichWithMovieDetails(list);
+          setWishlist(detailed);
+        } catch (err) {
+          console.error("Wishlist API error:", err.response || err);
+        }
+      })();
+    } else {
+      setWishlist([]);
     }
-  }, [user, wishlist]);
+  }, [user]);
+
+  const refreshWishlist = async () => {
+    try {
+      const list = await getWishlist();
+      const detailed = await enrichWithMovieDetails(list);
+      setWishlist(detailed);
+    } catch (err) {
+      console.error("Wishlist refresh failed:", err);
+    }
+  };
 
   const add = async (movieId) => {
     try {
-      const item = await addToWishlist(movieId);
-      setWishlist((prev) => [...prev, item]);
+      await addToWishlist(movieId);
+      await refreshWishlist(); // refetch sau khi thêm
       toast.success("Added to wishlist");
     } catch {
       toast.error("Failed to add wishlist");
@@ -32,7 +49,7 @@ export const WishlistProvider = ({ children }) => {
   const remove = async (wishlistId) => {
     try {
       await removeFromWishlist(wishlistId);
-      setWishlist((prev) => prev.filter((w) => w.id !== wishlistId));
+      await refreshWishlist(); // refetch sau khi xóa
       toast.info("Removed from wishlist");
     } catch {
       toast.error("Failed to remove wishlist");

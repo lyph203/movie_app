@@ -11,6 +11,7 @@ import OAuth2Callback from "./features/auth/OAuth2RedirectHandler";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import WishlistPage from "./pages/WishlistPage";
+import PublicWishlistPage from "./pages/PublicWishlistPage";
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
           <Route path="movie/:id" element={<MovieDetailPage />} />
           <Route path="timeline" element={<ReleasePage />} />
           <Route path="/auth" element={<AuthPage />} />
+          <Route path="/share/:token" element={<PublicWishlistPage />} />
           <Route
             path="/profile"
             element={

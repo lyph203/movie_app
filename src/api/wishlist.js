@@ -16,3 +16,9 @@ export const removeFromWishlist = async (wishlistId) => {
   });
   return res.data;
 };
+
+export const shareWishlist = async (email) =>
+  apiClient.put(`/wishlist/share`, null, { params: { email } });
+
+export const getPublicWishlist = async (token) =>
+  apiClient.get(`/wishlist/public/${token}`);
